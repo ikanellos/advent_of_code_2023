@@ -1,4 +1,11 @@
 ############################
+# Still a lot of trouble   #
+# with basic string mani-  #
+# pulation. Hope I'll get  #
+# the hang of it instead   #
+# of basically reading     #
+# characters...            # 
+############################
 # Imports
 from python import Python
 from sys import argv

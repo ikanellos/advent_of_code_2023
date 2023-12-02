@@ -1,5 +1,17 @@
+####################################
+# The code is very messy and could #
+# benefit from better organization/#
+# optimization. This is normal, I'm#
+# trying out mojo for the first    #
+# time and have trouble navigating #
+# and understanding the available  #
+# documentation just now. For lack #
+# of time I will leave the code in #
+# its messy state.                 #
+####################################
+# Imports
 from sys import argv
-
+####################################
 fn main() raises:
 
     # File data string
