@@ -18,6 +18,9 @@
 # if I'm writing glorified assembly but #
 # I'm starting to understand mojos data-#
 # types...                              #
+# Complexities aren't great here-O(n^2) #
+# but the focus is still to understand  #
+# mojo's builtins.                      #
 #########################################
 # Imports
 from python import Python
@@ -66,7 +69,40 @@ fn make_num_tuple(num_string: String, file_index: Int, x_index: Int, y_index: In
     '''
     let tuple_to_return: Tuple[Int, Int, Int, Int] = Tuple(correct_file_index, x_index-len(num_string)+1, x_index, y_index)
     return tuple_to_return
+# -------------------------------------- #
+fn star_gear_adjacent(star_x: Int, star_y: Int, number_vector: InlinedFixedVector[Tuple[Int, Int, Int, Int], 200], file_data: String) raises -> Int:
+    '''Return product of numbers adjacent to symbols, if 2 nums are adjacent.'''
 
+    # This may be an actual correct usage, since we know here that few numbers will be adjacent
+    var adjacent_nums: InlinedFixedVector[Int, 5] = InlinedFixedVector[Int, 5](10) 
+    for num_index in range(len(number_vector)):
+
+        let num_tuple: Tuple[Int, Int, Int, Int] = number_vector.__getitem__(num_index)
+        let num_y: Int = num_tuple.get[3, Int]()
+        # Ignore nums in different lines
+        if abs(star_y - num_y) > 1:
+            continue
+
+        let file_index: Int = num_tuple.get[0, Int]()
+        let num_start_x: Int = num_tuple.get[1, Int]()
+        let num_end_x: Int = num_tuple.get[2, Int]()
+
+        if star_x >= num_start_x - 1 and star_x <= num_end_x + 1:
+            let adjacent_num_str: String = file_data[file_index:file_index+(num_end_x-num_start_x)+1]
+            let adjacent_num: Int = atol(adjacent_num_str)
+            # print ("Found star-adjacency for:", adjacent_num)
+            adjacent_nums.append(adjacent_num)
+            # quick kill if too many numbers
+            if len(adjacent_nums) > 2:
+                return 0
+
+    var product: Int = 0
+    # If two nums are adjacent to the star
+    if len(adjacent_nums) == 2:
+        product = adjacent_nums.__getitem__(0) * adjacent_nums.__getitem__(1)
+        # print ("Product is:", product)
+    
+    return product
 ##########################################
 
 # Main
@@ -91,7 +127,13 @@ fn main() raises:
     # Let's say that the numbers will be much fewer, e.g., 10 per line
     var num_coordinates    = InlinedFixedVector[Tuple[Int, Int, Int, Int], 200](2000) # add a capacity for 2000 more
 
+    # Create a vector only for star symbols
+    var star_coordinates = InlinedFixedVector[Tuple[Int, Int, Int], 100](1000) 
+    
+    # Sum of gears for part 1
     var gear_sum: Int = 0 # sum the numbers adjacent to symbols
+    # Sum of star part adjacent number product for part 2
+    var star_gear_sum: Int = 0
     
     # Get all file data in a string
     with open(input_file_string, 'r') as f:
@@ -127,20 +169,6 @@ fn main() raises:
             # If we have parsed a number
             if num_string != "":
                 let coordinate_tuple: Tuple[Int, Int, Int, Int] = make_num_tuple(num_string, file_index, x_index-1, y_index)
-                '''
-                # Get correct start of string in file character stream
-                let file_index_correct: Int = file_index-1-len(num_string)+1 
-                # Parse the number
-                let num_parsed: Int = atol(num_string)
-                
-                print ("Num parsed:", num_parsed)
-                print ("Index:", file_index_correct)
-                print ("X-index:", x_index-len(num_string))
-                print ("X-index end:", x_index-1)
-                
-                # Add number to vector of nums
-                let coordinate_tuple: Tuple[Int, Int, Int, Int] = Tuple(file_index_correct, x_index-len(num_string), x_index-1, y_index)
-                '''
                 num_coordinates.append(coordinate_tuple)
                 # Clear lengt of number string
                 num_string = ""
@@ -150,6 +178,9 @@ fn main() raises:
                 let coordinate_tuple: Tuple[Int, Int, Int] = Tuple(file_index, x_index, y_index)
                 # Add to vector
                 symbol_coordinates.append(coordinate_tuple)
+                # Add to star coords if *
+                if current_character == '*':
+                    star_coordinates.append(coordinate_tuple)
         
         # Parse a number if the character is a digit
         if digit:
@@ -165,17 +196,6 @@ fn main() raises:
         if file_index == len(file_data)-1:
             # If we have parsed a number
             if num_string != "":
-                '''
-                # Get correct start of string in file character stream
-                let file_index_correct: Int = file_index-len(num_string)+1 
-                # Parse the number
-                let num_parsed: Int = atol(num_string)
-                
-                print ("Num parsed:", num_parsed)
-                print ("Index:", file_index_correct)
-                print ("X-index:", x_index-len(num_string))
-                print ("X-index end:", x_index-1)
-                '''
                 let coordinate_tuple: Tuple[Int, Int, Int, Int] = make_num_tuple(num_string, file_index+1, x_index-1, y_index)
                 # Add number to vector of nums
                 # let coordinate_tuple: Tuple[Int, Int, Int, Int] = Tuple(file_index_correct, x_index-len(num_string), x_index-1, y_index)
@@ -226,7 +246,19 @@ fn main() raises:
             # print ("Number:", number, "is adjacent to gear")
             gear_sum += number
 
+    # Iterate over stars
+    for star_index in range(len(star_coordinates)):
+        let star_tuple = star_coordinates.__getitem__(star_index)
+        let star_y: Int = star_tuple.get[2, Int]()
+        let star_x: Int = star_tuple.get[1, Int]()
+
+        let partial_sum: Int = star_gear_adjacent(star_x, star_y, num_coordinates, file_data)
+        # Partial sum will be 0 if conditions are not met, so it won't affect total sum
+        star_gear_sum += partial_sum
+    
+
     print ("Sum of gear parts:", gear_sum)
+    print ("Sum of star gear parts:", star_gear_sum)
 
 
 
