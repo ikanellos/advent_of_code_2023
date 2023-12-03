@@ -61,9 +61,9 @@ def get_line_data_dict(input_line: str) -> dict:
     # Return line data
     return data_dict
 # ---------------------------------------------------------- #
+# ---------------------------------------------------------- #
 def get_star_adjacent_nums(star: list, gear_grid: dict) -> list:
     '''Return a list of numbers adjacent to the star coordinates, based on the gear grid'''
-
 
     # Star coordinates
     star_x = star[0]
@@ -145,7 +145,7 @@ with open(input_file) as f:
 
         # Check numbers against line itself
         for index in gear_grid[line_index]["symbol_indexes"]:
-            for number in line_data_dictionary["num_indexes"]:
+            for number in gear_grid[line_index]["num_indexes"]:
                 index_diffs = {index-number_index for number_index in number[1]}
                 # If we have a difference of 1 or -1 we have an adjacent number
                 if 1 in index_diffs or -1 in index_diffs:
@@ -168,7 +168,6 @@ with open(input_file) as f:
                 for index in gear_grid[line_index-1]["symbol_indexes"]:
                     # Ignore numbers already added
                     if not number[2] and index <= number[1][1]+1 and index >= number[1][0]-1:
-                        print ("Number: ",  number, "must be added")
                         number[2] = True
                         sum_of_valid_numbers += number[0]
 
@@ -179,21 +178,22 @@ with open(input_file) as f:
 for star in star_coords:
     # Store numbers adjacent to the star
     star_adjacent_nums = get_star_adjacent_nums(star, gear_grid)
-    print (f"Star adjacent nums for {star}:{star_adjacent_nums}")
+    # print (f"Star adjacent nums for {star}:{star_adjacent_nums}")
     # Here the length should be 2
     if len(star_adjacent_nums) == 2:
-        print (f"Star at {star} is a valid gear!")
+        # print (f"Star at {star} is a valid gear!")
         gear_ratio = star_adjacent_nums[0] * star_adjacent_nums[1]
         sum_star_gear_ratios += gear_ratio
     
 
-
+'''
 print ("\n\n")
 for offset in gear_grid:
     print (f"{offset}:{gear_grid[offset]}")
 print ("\n------------------\n")
 print ("Star coordinates:")
 print (star_coords)
+'''
 print (f"Sum of gear parts: {sum_of_valid_numbers}")
 print (f"Sum of star gears: {sum_star_gear_ratios}")
 
