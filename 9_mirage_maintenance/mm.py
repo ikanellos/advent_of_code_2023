@@ -38,19 +38,31 @@ def create_diff_sequences(input_list: list) -> list:
 
 # ------------------------------------ #
 
-def get_next(sequences: list) -> int:
+def get_next(sequences: list, reverse: bool = False) -> int:
     '''Get the next value of the first sequence in sequences by following the pyramid rule.'''
 
     # Start at the end, move to the front
-    last_seq = sequences.pop(-1)
-    last_val = last_seq [-1]
+    last_seq = sequences[-1]
+    if not reverse:
+        last_val = last_seq[-1]
+    else:
+        last_val = last_seq[0]
+
     for seq_index in range(len(sequences), 0, -1):
-        previous_last_val = sequences[seq_index-1][-1]
-        sequences[seq_index-1].append(last_val + previous_last_val)
-        last_val = sequences[seq_index-1][-1]
-    
+        if not reverse:
+            previous_last_val = sequences[seq_index-1][-1]
+            sequences[seq_index-1].append(last_val + previous_last_val)
+            last_val = sequences[seq_index-1][-1]         
+        else:
+            previous_last_val = sequences[seq_index-1][0]
+            sequences[seq_index-1] = [previous_last_val - last_val] + sequences[seq_index-1]
+            last_val = sequences[seq_index-1][0]
+
     # Return the last appended element of first sequence
-    return sequences[0][-1]
+    if not reverse:
+        return sequences[0][-1]
+    else:
+        return sequences[0][0]
 
 
 #################
@@ -62,6 +74,7 @@ input_file = sys.argv[1]
 # Get each list from the file input
 input_lists = []
 acc = 0
+reverse_acc = 0
 with open(input_file) as f:
     for line in f:
         line = line.strip()
@@ -73,9 +86,14 @@ with open(input_file) as f:
         sequences = create_diff_sequences(add_list)
         next_val  = get_next(sequences)
 
+        first_val = get_next(sequences, True)
+
         acc += next_val
+        reverse_acc += first_val
+
 
 print (f"Accumulated: {acc}")
+print (f"Reverse acc: {reverse_acc}")
 
 
 
